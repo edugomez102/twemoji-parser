@@ -17,5 +17,5 @@ im.show()
 from .emote import emoji_to_url
 from .image import TwemojiParser
 
-__version__ = "0.1.1"
+__version__ = "0.2"
 __all__ = ["emoji_to_url", "TwemojiParser"]

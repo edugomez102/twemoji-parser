@@ -39,13 +39,13 @@ class TwemojiParser:
     def draw_text(self, xy, text, font=None, spacing=4, *args, **kwargs) -> None:
         """
         Draws a text with the emoji. Parameters are the same as PIL.ImageDraw.text() method.
-        newlines (like \\n) is not yet supported yet in this version. You can make a pull request at https://github.com/vierofernando/twemoji-parser to improve/add features.
         """
 
         _parsed_text = self.__parse_text(text)
         _font = font if font is not None else ImageFont.load_default()
         _font_size = 11 if not hasattr(_font, "size") else _font.size
         _current_x, _current_y = xy[0], xy[1]
+        _origin_x = xy[0]
 
         if len([i for i in _parsed_text if i.startswith("https://")]) == 0:
             self.draw.text(xy, text, font=font, spacing=spacing, *args, **kwargs)
@@ -57,6 +57,9 @@ class TwemojiParser:
                     _current_x += _font_size + spacing
                     continue
                 _deparsed_text = _parsed_text[i].replace("<LS>", "https://")
-                _size = _font.getsize_multiline(_deparsed_text)
+                _size = _font.getsize(_deparsed_text.replace("\n", ""))
+                if _deparsed_text.count("\n") > 0:
+                    _current_x = _origin_x - spacing
+                    _current_y += (_font_size * _deparsed_text.count("\n"))
                 self.draw.text((_current_x, _current_y), _deparsed_text, font=font, *args, **kwargs)
                 _current_x += _size[0] + spacing

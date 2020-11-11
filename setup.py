@@ -2,7 +2,7 @@ from setuptools import setup
 setup(
   name = 'twemoji-parser',
   packages = ['twemoji_parser'],
-  version = '0.1.1',
+  version = '0.2',
   license='MIT',
   description = 'A python module made on top of PIL that draws emoji from text to image.',
   long_description = open('README.md', 'r', encoding='utf-8').read(),
@@ -10,7 +10,7 @@ setup(
   author = 'vierofernando',
   author_email = 'vierofernando9@gmail.com',
   url = 'https://github.com/vierofernando/twemoji-parser',
-  download_url = 'https://github.com/vierofernando/twemoji-parser/archive/0.1.1.tar.gz',
+  download_url = 'https://github.com/vierofernando/twemoji-parser/archive/0.2.tar.gz',
   keywords = ['Emoji', 'Twemoji', 'PIL', 'Image'],
   install_requires=[
     'requests',
