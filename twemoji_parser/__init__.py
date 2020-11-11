@@ -9,7 +9,7 @@ im = Image.new("RGB", (500, 500), color=(255, 255, 255))
 font = ImageFont.truetype("/path/to/font.ttf", 30)
 parser = TwemojiParser(im)
 
-parser.draw_text((5, 5), "I ❤️ Python!", font=font, fill=(0, 0, 0))
+parser.draw_text((5, 5), "I 💖 Python!", font=font, fill=(0, 0, 0))
 im.show()
 
 """
@@ -17,5 +17,5 @@ im.show()
 from .emote import emoji_to_url
 from .image import TwemojiParser
 
-__version__ = "0.1 Beta"
+__version__ = "0.1.1"
 __all__ = ["emoji_to_url", "TwemojiParser"]
