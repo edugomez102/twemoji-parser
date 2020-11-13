@@ -1,6 +1,8 @@
 # twemoji_parser
-A python module made on top of PIL that draws twemoji from text to image.
-```python3 -m pip install twemoji-parser```
+A python module made on top of PIL that draws twemoji from text to image.<br>
+```sh
+$ python3 -m pip install twemoji-parser
+```
 
 ## Examples
 ### Drawing a text with emoji:
