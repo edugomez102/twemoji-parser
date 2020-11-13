@@ -23,7 +23,7 @@ def codepoint(codes):
         return "-".join([c for c in codes if c != "fe0f"])
     return "-".join(codes)
 
-def emoji_to_url(char):
+def emoji_to_url(char, include_check):
     if valid_category(char):
         name = unicodedata.name(char).title()
     else:
@@ -33,6 +33,8 @@ def emoji_to_url(char):
             name = get_best_name(char)
 
     src = cdn_fmt.format(code=codepoint(["{cp:x}".format(cp=ord(c)) for c in char]))
+
+    if not include_check: return src
 
     if valid_src(src):
         return src

@@ -5,19 +5,62 @@ from io import BytesIO
 from .emote import emoji_to_url
 
 class TwemojiParser:
-    def __init__(self, image) -> None:
+    UNICODES = UNICODE_EMOJI.keys()
+    NON_EMOJIS = list("abcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_+-=[]\;',./{}|: <>?")
+
+    @staticmethod
+    def has_emoji(text: str, *args, **kwargs) -> bool:
+        """ A static method that checks if a text has an emoji. """
+        
+        return TwemojiParser.count_emojis(text) > 0
+
+    @staticmethod
+    def count_emojis(text: str, *args, **kwargs) -> int:
+        """ A static method that counts the emojis from a string. """
+        
+        count = 0
+        for i in list(text.lower()):
+            if i in TwemojiParser.NON_EMOJIS:
+                continue
+            elif i in TwemojiParser.UNICODES:
+                count += 1
+        return count
+    
+    @staticmethod
+    def get_emojis_from(text: str, *args, **kwargs) -> list:
+        """ A static method that gets the list of emojis from a string. """
+        
+        res = []
+        for i in list(text.lower()):
+            if i in TwemojiParser.NON_EMOJIS: continue
+            elif i in TwemojiParser.UNICODES:
+                res.append(i)
+        return res
+
+    def __init__(self, image: Image.Image, *args, **kwargs) -> None:
         """ Creates a parser from PIL.Image.Image object. """
         self.image = image
         self.draw = ImageDraw.Draw(image)
-        self.alphabet = list("abcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_+-=[]\;',./{}|: <>?")
-        self.unicode = UNICODE_EMOJI.keys()
     
-    def __parse_text(self, text) -> list:
-        result = []
+    def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
+        """ (BETA) Gets the size of a text. """
+        
+        _parsed = self.__parse_text(text, check_for_url)
+        if len(_parsed) == 1 and (not _parsed[0].startswith("https://")):
+            return font.getsize(text)
+        _width, _height = 0, font.getsize(text)[1]
+        for i in _parsed:
+            if not i.startswith("https://"):
+                _width += font.getsize(i)[0] + spacing
+            _width += _height + spacing
+        return (_width - spacing, _height)
+    
+    def __parse_text(self, text: str, check: bool) -> list:
+        result, cache = [], []
         text = text.replace("https://", "<LS>")
         temp_word = ""
         for letter in range(len(text)):
-            if text[letter].lower() in self.alphabet:
+            if text[letter].lower() in TwemojiParser.NON_EMOJIS:
                 if (letter == (len(text) - 1)) and temp_word != "":
                     result.append(temp_word + text[letter]) ; break
                 temp_word += text[letter] ; continue
@@ -25,23 +68,38 @@ class TwemojiParser:
             if temp_word != "": result.append(temp_word)
             temp_word = ""
             
-            res = emoji_to_url(text[letter])
+            __calculate = [i for i in range(len(cache)) if text[letter] in cache[i].keys()]
+            
+            if len(__calculate) > 0:
+                result.append(cache[__calculate[0]][text[letter]])
+                continue
+
+            res = emoji_to_url(text[letter], check)
             if res is not None:
                 result.append(res)
+                cache.append({text[letter]: res})
             else:
                 result.append(text[letter])
         if result == []: return [text]
         return result
 
-    def __image_from_url(self, url) -> Image.Image:
+    def __image_from_url(self, url: str) -> Image.Image:
         return Image.open(BytesIO(get(url).content))
 
-    def draw_text(self, xy, text, font=None, spacing=4, *args, **kwargs) -> None:
+    def draw_text(
+        self,
+        xy: tuple,
+        text: str,
+        with_url_check: bool = True,
+        font=None,
+        spacing: int = 4,
+        *args, **kwargs
+    ) -> None:
         """
         Draws a text with the emoji. Parameters are the same as PIL.ImageDraw.text() method.
         """
 
-        _parsed_text = self.__parse_text(text)
+        _parsed_text = self.__parse_text(text, with_url_check)
         _font = font if font is not None else ImageFont.load_default()
         _font_size = 11 if not hasattr(_font, "size") else _font.size
         _current_x, _current_y = xy[0], xy[1]
