@@ -41,6 +41,7 @@ class TwemojiParser:
         """ Creates a parser from PIL.Image.Image object. """
         self.image = image
         self.draw = ImageDraw.Draw(image)
+        self.__cache = []
     
     def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
         """ (BETA) Gets the size of a text. """
@@ -56,7 +57,7 @@ class TwemojiParser:
         return (_width - spacing, _height)
     
     def __parse_text(self, text: str, check: bool) -> list:
-        result, cache = [], []
+        result = []
         text = text.replace("https://", "<LS>")
         temp_word = ""
         for letter in range(len(text)):
@@ -68,16 +69,16 @@ class TwemojiParser:
             if temp_word != "": result.append(temp_word)
             temp_word = ""
             
-            __calculate = [i for i in range(len(cache)) if text[letter] in cache[i].keys()]
+            __calculate = [i for i in range(len(self.__cache)) if text[letter] in self.__cache[i].keys()]
             
             if len(__calculate) > 0:
-                result.append(cache[__calculate[0]][text[letter]])
+                result.append(self.__cache[__calculate[0]][text[letter]])
                 continue
 
             res = emoji_to_url(text[letter], check)
             if res is not None:
                 result.append(res)
-                cache.append({text[letter]: res})
+                self.__cache.append({text[letter]: res})
             else:
                 result.append(text[letter])
         if result == []: return [text]
