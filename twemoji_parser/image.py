@@ -75,7 +75,7 @@ class TwemojiParser:
                 result.append(self.__cache[__calculate[0]][text[letter]])
                 continue
 
-            res = emoji_to_url(text[letter], check)
+            res = emoji_to_url(text[letter], include_check=check)
             if res is not None:
                 result.append(res)
                 self.__cache.append({text[letter]: res})
