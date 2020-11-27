@@ -1,6 +1,6 @@
 from emoji import UNICODE_EMOJI
 from PIL import Image, ImageDraw, ImageFont
-from requests import get
+from aiohttp import ClientSession
 from io import BytesIO
 from .emote import emoji_to_url
 
@@ -42,6 +42,7 @@ class TwemojiParser:
         self.image = image
         self.draw = ImageDraw.Draw(image)
         self.__cache = []
+        self.__session = ClientSession()
     
     def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
         """ (BETA) Gets the size of a text. """
@@ -84,10 +85,12 @@ class TwemojiParser:
         if result == []: return [text]
         return result
 
-    def __image_from_url(self, url: str) -> Image.Image:
-        return Image.open(BytesIO(get(url).content))
+    async def __image_from_url(self, url: str) -> Image.Image:
+        async with self.__session.get(url) as resp:
+            _byte = await resp.read()
+            return Image.open(BytesIO(_byte))
 
-    def draw_text(
+    async def draw_text(
         self,
         xy: tuple,
         text: str,
@@ -111,7 +114,7 @@ class TwemojiParser:
         else:
             for i in range(len(_parsed_text)):
                 if (_parsed_text[i].startswith("https://")):
-                    _emoji_im = self.__image_from_url(_parsed_text[i]).resize((_font_size, _font_size)).convert("RGBA")
+                    _emoji_im = await self.__image_from_url(_parsed_text[i]).resize((_font_size, _font_size)).convert("RGBA")
                     self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)
                     _current_x += _font_size + spacing
                     continue
