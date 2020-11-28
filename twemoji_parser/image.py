@@ -19,8 +19,8 @@ class TwemojiParser:
         """ A static method that counts the emojis from a string. """
         
         count = 0
-        for i in list(text.lower()):
-            if i in TwemojiParser.NON_EMOJIS:
+        for i in list(text.lower().replace(" ", "")):
+            if i.isalpha() or i.isnumeric() or i in TwemojiParser.NON_EMOJIS:
                 continue
             elif i in TwemojiParser.UNICODES:
                 count += 1
@@ -32,7 +32,7 @@ class TwemojiParser:
         
         res = []
         for i in list(text.lower()):
-            if i in TwemojiParser.NON_EMOJIS: continue
+            if i.isalpha() or i.isnumeric() or i in TwemojiParser.NON_EMOJIS: continue
             elif i in TwemojiParser.UNICODES:
                 res.append(i)
         return res
@@ -41,7 +41,8 @@ class TwemojiParser:
         """ Creates a parser from PIL.Image.Image object. """
         self.image = image
         self.draw = ImageDraw.Draw(image)
-        self.__cache = []
+        self._emoji_cache = {}
+        self._image_cache = {}
         self.__session = ClientSession()
     
     def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
@@ -59,48 +60,59 @@ class TwemojiParser:
     
     def __parse_text(self, text: str, check: bool) -> list:
         result = []
+        # please don't put <lS> on your text, thank you
         text = text.replace("https://", "<LS>")
         temp_word = ""
         for letter in range(len(text)):
-            if text[letter].lower() in TwemojiParser.NON_EMOJIS:
+            if text[letter].isalpha() or text[letter].isnumeric() or (text[letter] in TwemojiParser.NON_EMOJIS):
+                # basic text case
                 if (letter == (len(text) - 1)) and temp_word != "":
                     result.append(temp_word + text[letter]) ; break
                 temp_word += text[letter] ; continue
             
+            # check if there is an empty string in the array
             if temp_word != "": result.append(temp_word)
             temp_word = ""
             
-            __calculate = [i for i in range(len(self.__cache)) if text[letter] in self.__cache[i].keys()]
-            
-            if len(__calculate) > 0:
-                result.append(self.__cache[__calculate[0]][text[letter]])
+            if text[letter] in self._emoji_cache.keys():
+                # store in cache so it uses less HTTP requests
+                result.append(self._emoji_cache[text[letter]])
                 continue
 
+            # include_check will check the URL if it's valid. Disabling it will make the process faster, but more error-prone
             res = emoji_to_url(text[letter], include_check=check)
-            if res is not None:
+            if res != text[letter]:
                 result.append(res)
-                self.__cache.append({text[letter]: res})
+                self._emoji_cache[text[letter]] = res
             else:
                 result.append(text[letter])
+        
         if result == []: return [text]
         return result
 
     async def __image_from_url(self, url: str) -> Image.Image:
-        async with self.__session.get(url) as resp:
-            _byte = await resp.read()
-            return Image.open(BytesIO(_byte))
+        """ Gets an image from URL. """
+        resp = await self.__session.get(url)
+        _byte = await resp.read()
+        return Image.open(BytesIO(_byte))
 
     async def draw_text(
         self,
+        # Same PIL options
         xy: tuple,
         text: str,
         with_url_check: bool = True,
         font=None,
         spacing: int = 4,
+        
+        # Parser options
+        clear_cache_after_usage: bool = False,
+        
         *args, **kwargs
     ) -> None:
         """
-        Draws a text with the emoji. Parameters are the same as PIL.ImageDraw.text() method.
+        Draws a text with the emoji.
+        clear_cache_after_usage will clear the cache after this method is finished. (defaults to False)
         """
 
         _parsed_text = self.__parse_text(text, with_url_check)
@@ -114,7 +126,13 @@ class TwemojiParser:
         else:
             for i in range(len(_parsed_text)):
                 if (_parsed_text[i].startswith("https://")):
-                    _emoji_im = await self.__image_from_url(_parsed_text[i]).resize((_font_size, _font_size)).convert("RGBA")
+                    # check if image is in cache
+                    if _parsed_text[i] in self._image_cache.keys():
+                        _emoji_im = self._image_cache[_parsed_text[i]].copy()
+                    else:
+                        _emoji_im = await self.__image_from_url(_parsed_text[i]).resize((_font_size, _font_size))
+                        self._image_cache[_parsed_text[i]] = _emoji_im.copy()
+                    
                     self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)
                     _current_x += _font_size + spacing
                     continue
@@ -125,3 +143,10 @@ class TwemojiParser:
                     _current_y += (_font_size * _deparsed_text.count("\n"))
                 self.draw.text((_current_x, _current_y), _deparsed_text, font=font, *args, **kwargs)
                 _current_x += _size[0] + spacing
+    
+    async def close(self):
+        """ Closes the aiohttp ClientSession and clears all the cache. """
+        
+        await self.__session.close()
+        self._emoji_cache = {}
+        self._image_cache = {}

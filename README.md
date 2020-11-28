@@ -11,12 +11,15 @@ from twemoji_parser import TwemojiParser
 from PIL import Image, ImageFont
 
 async def main():
-	im = Image.new("RGB", (500, 500), color=(255, 255, 255))
-	font = ImageFont.truetype("/path/to/font.ttf", 30)
-	parser = TwemojiParser(im)
-	
-	await parser.draw_text((5, 5), "I 💖 Python!", font=font, fill=(0, 0, 0))
-	im.show()
+    im = Image.new("RGB", (500, 500), color=(255, 255, 255))
+    font = ImageFont.truetype("/path/to/font.ttf", 30)
+    parser = TwemojiParser(im)
+    
+    await parser.draw_text((5, 5), "I 💖 Python!", font=font, fill=(0, 0, 0))
+    await parser.close() # this is optional. don't close the parser when you are not finished.
+    im.show()
+
+main()
 ```
 ### Get a twemoji URL from emoji:
 ```py
