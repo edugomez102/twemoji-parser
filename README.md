@@ -24,7 +24,11 @@ main()
 ### Get a twemoji URL from emoji:
 ```py
 from twemoji_parser import emoji_to_url
-url = emoji_to_url("❤️")
 
-# returns a URL that displays an image of the emoji. otherwise returns the same text.
+async def main():
+    url = await emoji_to_url("❤️")
+	# returns a URL that displays an image of the emoji. otherwise returns the same text.
+    print(url)
+
+main()
 ```
