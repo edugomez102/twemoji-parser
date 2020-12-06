@@ -80,7 +80,7 @@ class TwemojiParser:
                 continue
 
             # include_check will check the URL if it's valid. Disabling it will make the process faster, but more error-prone
-            res = emoji_to_url(text[letter], include_check=check)
+            res = await emoji_to_url(text[letter], include_check=check)
             if res != text[letter]:
                 result.append(res)
                 self._emoji_cache[text[letter]] = res
