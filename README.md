@@ -60,8 +60,11 @@ main()
 <li><b>spacing</b> (optional, text spacing. defaults to 4)</li>
 </ul>
 
-`(async) TwemojiParser.close(delete_all_attributes: bool, ...) -> None`<br>
-<ul><li><b>delete_all_attributes</b> (optional, deletes all object attributes as well to save memory. defaults to False)</li></ul>
+`(async) TwemojiParser.close(delete_all_attributes: bool, close_session: bool ...) -> None`<br>
+<ul>
+<li><b>delete_all_attributes</b> (optional, deletes all object attributes as well to save memory. defaults to True)</li>
+<li><b>close_session</b> (optional, removes the session object that was either generated or passed into the __init__ of the parser. defaults to True)</li>
+</ul>
 
 `(staticmethod) TwemojiParser.has_emoji(text: str, ...) -> bool`<br>
 <ul><li><b>text</b> (a string containing the text to check.)</li></ul>
