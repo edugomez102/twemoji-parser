@@ -18,32 +18,24 @@ class TwemojiParser:
     def count_emojis(text: str, *args, **kwargs) -> int:
         """ A static method that counts the emojis from a string. """
         
-        count = 0
-        for i in list(text.lower().replace(" ", "")):
-            if i.isalpha() or i.isnumeric() or i in TwemojiParser.NON_EMOJIS:
-                continue
-            elif i in TwemojiParser.UNICODES:
-                count += 1
-        return count
+        _filter = list(filter(lambda x: (x not in TwemojiParser.NON_EMOJIS) and (x in TwemojiParser.UNICODES), list(text)))
+        size = len(_filter)
+        del _filter
+        return size
     
     @staticmethod
     def get_emojis_from(text: str, *args, **kwargs) -> list:
         """ A static method that gets the list of emojis from a string. """
         
-        res = []
-        for i in list(text.lower()):
-            if i.isalpha() or i.isnumeric() or i in TwemojiParser.NON_EMOJIS: continue
-            elif i in TwemojiParser.UNICODES:
-                res.append(i)
-        return res
+        return list(filter(lambda x: (x not in TwemojiParser.NON_EMOJIS) and (x in TwemojiParser.UNICODES), list(text)))
 
-    def __init__(self, image: Image.Image, *args, **kwargs) -> None:
+    def __init__(self, image: Image.Image, session: ClientSession = None *args, **kwargs) -> None:
         """ Creates a parser from PIL.Image.Image object. """
         self.image = image
         self.draw = ImageDraw.Draw(image)
         self._emoji_cache = {}
         self._image_cache = {}
-        self.__session = ClientSession()
+        self.__session = ClientSession() if (not session) else session
     
     async def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
         """ (BETA) Gets the size of a text. """
@@ -80,7 +72,7 @@ class TwemojiParser:
                 continue
 
             # include_check will check the URL if it's valid. Disabling it will make the process faster, but more error-prone
-            res = await emoji_to_url(text[letter], include_check=check)
+            res = await emoji_to_url(text[letter], include_check=check, use_session=self.__session)
             if res != text[letter]:
                 result.append(res)
                 self._emoji_cache[text[letter]] = res
@@ -101,11 +93,11 @@ class TwemojiParser:
         # Same PIL options
         xy: tuple,
         text: str,
-        with_url_check: bool = True,
         font=None,
         spacing: int = 4,
         
         # Parser options
+        with_url_check: bool = True,
         clear_cache_after_usage: bool = False,
         
         *args, **kwargs
@@ -143,10 +135,17 @@ class TwemojiParser:
                     _current_y += (_font_size * _deparsed_text.count("\n"))
                 self.draw.text((_current_x, _current_y), _deparsed_text, font=font, *args, **kwargs)
                 _current_x += _size[0] + spacing
+        
+        if clear_cache_after_usage:
+            await self.close(delete_all_attributes=bool(kwargs.get("delete_all_attributes")))
     
-    async def close(self):
+    async def close(self, delete_all_attributes: bool = False, *args, **kwargs):
         """ Closes the aiohttp ClientSession and clears all the cache. """
         
         await self.__session.close()
-        self._emoji_cache = {}
-        self._image_cache = {}
+        
+        if delete_all_attributes:
+            del self._emoji_cache
+            del self._image_cache
+            del self.draw
+            del self.image
