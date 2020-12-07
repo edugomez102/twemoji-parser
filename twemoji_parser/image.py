@@ -29,7 +29,7 @@ class TwemojiParser:
         
         return list(filter(lambda x: (x not in TwemojiParser.NON_EMOJIS) and (x in TwemojiParser.UNICODES), list(text)))
 
-    def __init__(self, image: Image.Image, session: ClientSession = None *args, **kwargs) -> None:
+    def __init__(self, image: Image.Image, session: ClientSession = None, *args, **kwargs) -> None:
         """ Creates a parser from PIL.Image.Image object. """
         self.image = image
         self.draw = ImageDraw.Draw(image)
@@ -52,8 +52,6 @@ class TwemojiParser:
     
     async def __parse_text(self, text: str, check: bool) -> list:
         result = []
-        # please don't put <lS> on your text, thank you
-        text = text.replace("https://", "<LS>")
         temp_word = ""
         for letter in range(len(text)):
             if text[letter].isalpha() or text[letter].isnumeric() or (text[letter] in TwemojiParser.NON_EMOJIS):
@@ -99,6 +97,7 @@ class TwemojiParser:
         # Parser options
         with_url_check: bool = True,
         clear_cache_after_usage: bool = False,
+        convert_to_rgba: bool = True,
         
         *args, **kwargs
     ) -> None:
@@ -113,27 +112,32 @@ class TwemojiParser:
         _current_x, _current_y = xy[0], xy[1]
         _origin_x = xy[0]
 
-        if len([i for i in _parsed_text if i.startswith("https://")]) == 0:
+        if len([i for i in _parsed_text if i.startswith("https://twemoji.maxcdn.com/v/latest/72x72/")]) == 0:
             self.draw.text(xy, text, font=font, spacing=spacing, *args, **kwargs)
         else:
             for i in range(len(_parsed_text)):
-                if (_parsed_text[i].startswith("https://")):
+                print(_parsed_text[i])
+                if (_parsed_text[i].startswith("https://twemoji.maxcdn.com/v/latest/72x72")):
                     # check if image is in cache
                     if _parsed_text[i] in self._image_cache.keys():
                         _emoji_im = self._image_cache[_parsed_text[i]].copy()
                     else:
-                        _emoji_im = await self.__image_from_url(_parsed_text[i]).resize((_font_size, _font_size))
+                        _emoji_im = await self.__image_from_url(_parsed_text[i])
+                        _emoji_im = _emoji_im.resize((_font_size, _font_size)).convert("RGBA") if convert_to_rgba else _emoji_im.resize((_font_size, _font_size))
                         self._image_cache[_parsed_text[i]] = _emoji_im.copy()
                     
-                    self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)
+                    if _emoji_im.mode == "RGBA":
+                        self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)
+                    else:
+                        self.image.paste(_emoji_im, (_current_x, _current_y))
+                    
                     _current_x += _font_size + spacing
                     continue
-                _deparsed_text = _parsed_text[i].replace("<LS>", "https://")
-                _size = _font.getsize(_deparsed_text.replace("\n", ""))
-                if _deparsed_text.count("\n") > 0:
+                _size = _font.getsize(_parsed_text[i].replace("\n", ""))
+                if _parsed_text[i].count("\n") > 0:
                     _current_x = _origin_x - spacing
-                    _current_y += (_font_size * _deparsed_text.count("\n"))
-                self.draw.text((_current_x, _current_y), _deparsed_text, font=font, *args, **kwargs)
+                    _current_y += (_font_size * _parsed_text[i].count("\n"))
+                self.draw.text((_current_x, _current_y), _parsed_text[i], font=font, *args, **kwargs)
                 _current_x += _size[0] + spacing
         
         if clear_cache_after_usage:
