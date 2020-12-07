@@ -116,7 +116,6 @@ class TwemojiParser:
             self.draw.text(xy, text, font=font, spacing=spacing, *args, **kwargs)
         else:
             for i in range(len(_parsed_text)):
-                print(_parsed_text[i])
                 if (_parsed_text[i].startswith("https://twemoji.maxcdn.com/v/latest/72x72")):
                     # check if image is in cache
                     if _parsed_text[i] in self._image_cache.keys():

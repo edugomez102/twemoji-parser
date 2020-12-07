@@ -36,7 +36,7 @@ main()
 
 ## Documentation
 
-`TwemojiPaser(image: PIL.Image.image, session: aiohttp.ClientSession, ...) -> None`<br>
+`TwemojiParser(image: PIL.Image.image, session: aiohttp.ClientSession, ...) -> None`<br>
 <ul>
 <li><b>image</b> (PIL image object)</li>
 <li><b>session</b> (optional, aiohttp client session object, defaults to None)</li>
