@@ -45,10 +45,10 @@ class TwemojiParser:
         self._image_cache = {}
         self.__session = ClientSession()
     
-    def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
+    async def getsize(self, text: str, font, check_for_url: bool = True, spacing: int = 4, *args, **kwargs) -> tuple:
         """ (BETA) Gets the size of a text. """
         
-        _parsed = self.__parse_text(text, check_for_url)
+        _parsed = await self.__parse_text(text, check_for_url)
         if len(_parsed) == 1 and (not _parsed[0].startswith("https://")):
             return font.getsize(text)
         _width, _height = 0, font.getsize(text)[1]
@@ -58,7 +58,7 @@ class TwemojiParser:
             _width += _height + spacing
         return (_width - spacing, _height)
     
-    def __parse_text(self, text: str, check: bool) -> list:
+    async def __parse_text(self, text: str, check: bool) -> list:
         result = []
         # please don't put <lS> on your text, thank you
         text = text.replace("https://", "<LS>")
@@ -115,7 +115,7 @@ class TwemojiParser:
         clear_cache_after_usage will clear the cache after this method is finished. (defaults to False)
         """
 
-        _parsed_text = self.__parse_text(text, with_url_check)
+        _parsed_text = await self.__parse_text(text, with_url_check)
         _font = font if font is not None else ImageFont.load_default()
         _font_size = 11 if not hasattr(_font, "size") else _font.size
         _current_x, _current_y = xy[0], xy[1]

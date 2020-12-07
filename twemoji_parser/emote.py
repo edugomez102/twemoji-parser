@@ -12,10 +12,10 @@ def codepoint(codes):
         return "-".join([c for c in codes if c != "fe0f"])
     return "-".join(codes)
 
-async def emoji_to_url(char, include_check=True, parser=None):
+async def emoji_to_url(char, include_check=True, use_session=None):
     src = cdn_fmt.format(code=codepoint(["{cp:x}".format(cp=ord(c)) for c in char]))
     if not include_check: return src
-    session = ClientSession() if not parser else parser.__session
+    session = ClientSession() if not parser else use_session
     is_valid = await valid_src(src, session)
 
     if is_valid:
