@@ -48,7 +48,6 @@ main()
 <li><b>text</b> (the text content.)</li>
 <li><b>font</b> (optional, PIL.ImageFont object.)</li>
 <li><b>spacing</b> (optional, spacing of the text, defaults to 4)</li>
-<li><b>convert_to_rgba</b> (optional, converts emoji to RGBA image. defaults to True.)</li>
 <li><b>with_url_check</b> (optional, checks if the URL is valid. This may make the process longer but less error-prone. defaults to True)</li>
 <li><b>clear_cache_after_usage</b> (optional, Clears the cache after this function is called. adding delete_all_attributes=True will also delete all attributes. this defaults to False)</li>
 </ul>
