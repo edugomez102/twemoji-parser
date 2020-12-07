@@ -1,7 +1,7 @@
 import emoji
 from aiohttp import ClientSession
 
-cdn_fmt = "https://twemoji.maxcdn.com/v/latest/72x72/{code}.png"
+cdn_fmt = "https://twemoji.maxcdn.com/v/latest/72x72/{}.png"
 
 
 async def valid_src(url: str, session: ClientSession):

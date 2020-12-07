@@ -123,17 +123,17 @@ class TwemojiParser:
         clear_cache_after_usage will clear the cache after this method is finished. (defaults to False)
         """
 
-        __parsed_text = await self.__parse_text(text, with_url_check)
+        _parsed_text = await self.__parse_text(text, with_url_check)
         _font = font if font is not None else ImageFont.load_default()
         _font_size = 11 if not hasattr(_font, "size") else _font.size
         _, _font_descent = font.getmetrics()
         _current_x, _current_y = xy[0], xy[1]
         _origin_x = xy[0]
 
-        if len([i for i in __parsed_text if self.is_twemoji_url(i)]) == 0:
+        if len([i for i in _parsed_text if self.is_twemoji_url(i)]) == 0:
             self.draw.text(xy, text, font=font, spacing=spacing, *args, **kwargs)
         else:
-            for word in __parsed_text:
+            for word in _parsed_text:
                 if self.is_twemoji_url(word):
                     # check if image is in cache
                     if word in self._image_cache.keys():
@@ -158,13 +158,13 @@ class TwemojiParser:
         if clear_cache_after_usage:
             await self.close(delete_all_attributes=bool(kwargs.get("delete_all_attributes")))
 
-    
+            
     async def close(self, delete_all_attributes: bool = True, close_session: bool = True):
         """ Closes the aiohttp ClientSession and clears all the cache. """
         
         if close_session:
             await self.__session.close()
-        
+
         if delete_all_attributes:
             del self._emoji_cache
             del self._image_cache
