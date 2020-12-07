@@ -6,7 +6,6 @@ from .emote import emoji_to_url
 
 class TwemojiParser:
     UNICODES = UNICODE_EMOJI.keys()
-    NON_EMOJIS = list("abcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_+-=[]\;',./{}|: <>?")
 
     @staticmethod
     def has_emoji(text: str, *args, **kwargs) -> bool:
@@ -18,16 +17,13 @@ class TwemojiParser:
     def count_emojis(text: str, *args, **kwargs) -> int:
         """ A static method that counts the emojis from a string. """
         
-        _filter = list(filter(lambda x: (x not in TwemojiParser.NON_EMOJIS) and (x in TwemojiParser.UNICODES), list(text)))
-        size = len(_filter)
-        del _filter
-        return size
+        return len(TwemojiParser.get_emojis_from(text))
     
     @staticmethod
     def get_emojis_from(text: str, *args, **kwargs) -> list:
         """ A static method that gets the list of emojis from a string. """
         
-        return list(filter(lambda x: (x not in TwemojiParser.NON_EMOJIS) and (x in TwemojiParser.UNICODES), list(text)))
+        return list(filter(lambda x: (x in TwemojiParser.UNICODES), list(text)))
 
     def __init__(self, image: Image.Image, session: ClientSession = None, *args, **kwargs) -> None:
         """ Creates a parser from PIL.Image.Image object. """
@@ -54,7 +50,7 @@ class TwemojiParser:
         result = []
         temp_word = ""
         for letter in range(len(text)):
-            if text[letter].isalpha() or text[letter].isnumeric() or (text[letter] in TwemojiParser.NON_EMOJIS):
+            if text[letter] not in TwemojiParser.UNICODES:
                 # basic text case
                 if (letter == (len(text) - 1)) and temp_word != "":
                     result.append(temp_word + text[letter]) ; break
@@ -97,7 +93,6 @@ class TwemojiParser:
         # Parser options
         with_url_check: bool = True,
         clear_cache_after_usage: bool = False,
-        convert_to_rgba: bool = True,
         
         *args, **kwargs
     ) -> None:
@@ -122,13 +117,10 @@ class TwemojiParser:
                         _emoji_im = self._image_cache[_parsed_text[i]].copy()
                     else:
                         _emoji_im = await self.__image_from_url(_parsed_text[i])
-                        _emoji_im = _emoji_im.resize((_font_size, _font_size)).convert("RGBA") if convert_to_rgba else _emoji_im.resize((_font_size, _font_size))
+                        _emoji_im = _emoji_im.resize((_font_size, _font_size)).convert("RGBA")
                         self._image_cache[_parsed_text[i]] = _emoji_im.copy()
                     
-                    if _emoji_im.mode == "RGBA":
-                        self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)
-                    else:
-                        self.image.paste(_emoji_im, (_current_x, _current_y))
+                    self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)
                     
                     _current_x += _font_size + spacing
                     continue
