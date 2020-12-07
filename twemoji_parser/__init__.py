@@ -7,5 +7,5 @@ Feel free to make a pull request for a bug fix/new feature.
 from .emote import emoji_to_url
 from .image import TwemojiParser
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __all__ = ["emoji_to_url", "TwemojiParser"]
