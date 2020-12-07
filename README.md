@@ -39,7 +39,7 @@ main()
 ***`TwemojiPaser(image: PIL.Image.image, session: aiohttp.ClientSession, ...) -> None`***<br>
 **image** (PIL image object)<br>
 **session** (optional, aiohttp client session object, defaults to `None`)<br>
-<hr>
+
 ***`(async) TwemojiParser.draw_text(xy: tuple, text: str, font: PIL.ImageFont, spacing: int, with_url_check: bool, clear_cache_after_usage: bool, ...) -> None`***<br>
 **xy** (X and y coordinates to put the text on.)<br>
 **text** (the text content.)<br>
@@ -47,25 +47,25 @@ main()
 **spacing** (optional, spacing of the text, defaults to `4`)<br>
 **with_url_check** (optional, checks if the URL is valid. This may make the process longer but less error-prone. defaults to `True`)<br>
 **clear_cache_after_usage** (optional, Clears the cache after this function is called. adding `delete_all_attributes=True` will also delete all attributes. this defaults to `False`)<br>
-<hr>
+
 ***`(async) TwemojiPaser.getsize(text: str, font: PIL.ImageFont, check_for_url: bool, spacing: int, ...) -> tuple`***<br>
 **text** (text content.)<br>
 **font** (PIL ImageFont object.)<br>
 **check_for_url** (optional, checks if image is valid. this makes the process a bit slower but less error-prone. defaults to `True`)<br>
 **spacing** (optional, text spacing. defaults to `4`)<br>
-<hr>
+
 ***`(async) TwemojiParser.close(delete_all_attributes: bool, ...) -> None`***<br>
 **delete_all_attributes** (optional, deletes all object attributes as well to save memory. defaults to `False`)<br>
-<hr>
+
 ***`(staticmethod) TwemojiParser.has_emoji(text: str, ...) -> bool`***<br>
 **text** (a `string` containing the text to check.)<br>
-<hr>
+
 ***`(staticmethod) TwemojiParser.count_emojis(text: str, ...) -> int`***<br>
 **text** (a `string` containing the text to check.)<br>
-<hr>
+
 ***`(staticmethod) TwemojiParser.get_emojis_from(text: str, ...) -> list[str]`***<br>
 **text** (a `string` containing the text to parse.)<br>
-<hr>
+
 ***`(async) emoji_to_url(char: str, include_check: bool, use_session: ClientSession, ...) -> str`***<br>
 **char** (a `string` of an emoji.)<br>
 **include_check** (optional, a `bool` to check if the URL is valid before returning the value. defaults to `True`)<br>
