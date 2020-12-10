@@ -17,7 +17,7 @@ async def emoji_to_url(char, include_check: bool = True, session: ClientSession 
         return url
     
     _session = session if session else ClientSession()
-    is_valid = await valid_src(url, session)
+    is_valid = await valid_src(url, _session)
     if not session:
         await _session.close()
 
