@@ -38,12 +38,8 @@ async def main():
 ### Get a twemoji URL from emoji:
 ```py
 from twemoji_parser import emoji_to_url
-from aiohttp import ClientSession
 
 async def main():
     url = await emoji_to_url("❤️")
-	# returns a URL that displays an image of the emoji. otherwise returns the same text.
     print(url)
-
-main()
 ```
