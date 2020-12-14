@@ -1,4 +1,4 @@
-  
+from os.path import isfile
 from emoji import UNICODE_EMOJI
 from PIL import Image, ImageDraw, ImageFont
 from aiohttp import ClientSession
@@ -49,9 +49,18 @@ class TwemojiParser:
         return (text.startswith("https://twemoji.maxcdn.com/v/latest/72x72/") or text.startswith("https://cdn.discordapp.com/emojis/")) and text.endswith(".png") and text.count(" ") == 0
 
 
-    def __init__(self, image: Image.Image, parse_discord_emoji: bool = False, session: ClientSession = None, *args, **kwargs) -> None:
+    def __init__(self, image, parse_discord_emoji: bool = False, session: ClientSession = None, *args, **kwargs) -> None:
         """ Creates a parser from PIL.Image.Image object. """
-        self.image = image
+        
+        if isinstance(image, bytes):
+            self.image = Image.open(BytesIO(image))
+        elif isinstance(image, BytesIO):
+            self.image = Image.open(image)
+        elif isinstance(image, str) and isfile(image):
+            self.image = Image.open(image)
+        else:
+            self.image = image
+        
         self.draw = ImageDraw.Draw(image)
         self._emoji_cache = {}
         self._image_cache = {}
