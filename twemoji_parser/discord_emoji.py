@@ -10,7 +10,7 @@ def separate(text) -> list: # seperates the text from the <:EMOJI_NAME:EMOJI_ID>
         total.extend((text[last_span:span[0]], text[span[0]:span[1]])) # extend the array with the previous text and the supposed emoji
         last_span = span[1]
     total.append(text[last_span:]) # in case there is a missing element
-    return [i for i in total if i != ""] # return an array with no empty string
+    return [i for i in total if i] # return an array with no empty string
 
 async def parse_custom_emoji(text_list: list, session) -> list:
     result = []
