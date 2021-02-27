@@ -158,11 +158,16 @@ class TwemojiParser:
                         _emoji_im = self._image_cache[word].copy()
                     else:
                         _emoji_im = await self.__image_from_url(word)
-                        _emoji_im = _emoji_im.resize((_font_size+_font_descent, _font_size+_font_descent)).convert("RGBA")
+                        print('_font_descent', _font_descent)
+                        print('_font_size', _font_size)
+                        _emoji_im.save('before_resize.png')
+                        _emoji_im = _emoji_im.resize((_font_size - _font_size//6,
+                                                      _font_size - _font_size//6), Image.ANTIALIAS).convert("RGBA")
                         self._image_cache[word] = _emoji_im.copy()
+                        _emoji_im.save('after_resize.png')
 
-                    self.image.paste(_emoji_im, (_current_x, _current_y), _emoji_im)                    
-                    _current_x += _font_size + _font_descent + spacing
+                    self.image.paste(_emoji_im, (_current_x, _current_y + _font_descent - _font_descent//3), _emoji_im)                    
+                    _current_x += _font_size + _font_descent + (spacing - (_font_size//6 + _font_descent))
                     continue
 
                 _size = _font.getsize(word.replace("\n", ""))
