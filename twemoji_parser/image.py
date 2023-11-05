@@ -159,7 +159,7 @@ class TwemojiParser:
                     else:
                         _emoji_im = await self.__image_from_url(word)
                         _emoji_im = _emoji_im.resize((_font_size - _font_size//6,
-                                                      _font_size - _font_size//6), Image.ANTIALIAS).convert("RGBA")
+                                                      _font_size - _font_size//6), Image.LANCZOS).convert("RGBA")
                         self._image_cache[word] = _emoji_im.copy()
 
                     self.image.paste(_emoji_im, (_current_x, _current_y + _font_descent - _font_descent//3), _emoji_im)                    
