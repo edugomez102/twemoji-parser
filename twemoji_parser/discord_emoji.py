@@ -15,7 +15,7 @@ def separate(text) -> list: # seperates the text from the <:EMOJI_NAME:EMOJI_ID>
 async def parse_custom_emoji(text_list: list, session) -> list:
     result = []
     for text in text_list:
-        if text.startswith("https://twemoji.maxcdn.com/v/latest/72x72/") and text.endswith(".png"):
+        if text.startswith("https://cdn.bootcdn.net/ajax/libs/twemoji/14.0.2/72x72/") and text.endswith(".png"):
             result.append(text) # definitely a twemoji, skip
             continue
         
