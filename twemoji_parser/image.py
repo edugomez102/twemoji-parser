@@ -15,7 +15,7 @@ class TwemojiParser:
     def is_twemoji_url(text: str) -> bool:
         """ A static method that says if a url is a twemoji url """
 
-        return text.startswith("https://twemoji.maxcdn.com/v/latest/72x72/") and text.endswith(".png") and text.count(" ") == 0
+        return text.startswith("https://cdn.bootcdn.net/ajax/libs/twemoji/14.0.2/72x72/") and text.endswith(".png") and text.count(" ") == 0
 
 
     @staticmethod
@@ -44,9 +44,9 @@ class TwemojiParser:
 
     def __is_emoji_url(self, text: str) -> bool:
         if not self.parse_discord_emoji:
-            return text.startswith("https://twemoji.maxcdn.com/v/latest/72x72/") and text.endswith(".png") and (" " not in text)
+            return text.startswith("https://cdn.bootcdn.net/ajax/libs/twemoji/14.0.2/72x72/") and text.endswith(".png") and (" " not in text)
         
-        return (text.startswith("https://twemoji.maxcdn.com/v/latest/72x72/") or text.startswith("https://cdn.discordapp.com/emojis/")) and text.endswith(".png") and text.count(" ")
+        return (text.startswith("https://cdn.bootcdn.net/ajax/libs/twemoji/14.0.2/72x72/") or text.startswith("https://cdn.discordapp.com/emojis/")) and text.endswith(".png") and text.count(" ")
 
 
     def __init__(self, image, parse_discord_emoji: bool = False, session: ClientSession = None, *args, **kwargs) -> None:
@@ -159,7 +159,7 @@ class TwemojiParser:
                     else:
                         _emoji_im = await self.__image_from_url(word)
                         _emoji_im = _emoji_im.resize((_font_size - _font_size//6,
-                                                      _font_size - _font_size//6), Image.ANTIALIAS).convert("RGBA")
+                                                      _font_size - _font_size//6), Image.LANCZOS).convert("RGBA")
                         self._image_cache[word] = _emoji_im.copy()
 
                     self.image.paste(_emoji_im, (_current_x, _current_y + _font_descent - _font_descent//3), _emoji_im)                    

@@ -8,7 +8,7 @@ async def valid_src(url: str, session: ClientSession):
 
 async def emoji_to_url(char, include_check: bool = True, session: ClientSession = None):
     try:
-        url = f"https://twemoji.maxcdn.com/v/latest/72x72/{ord(char[0]):x}.png"
+        url = f"https://cdn.bootcdn.net/ajax/libs/twemoji/14.0.2/72x72/{ord(char[0]):x}.png"
         if not include_check:
             return url
         
